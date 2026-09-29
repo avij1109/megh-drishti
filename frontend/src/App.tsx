@@ -11,7 +11,7 @@ type State = {
   cells: Cell[]; localities: Locality[]; alerts: Alert[]; explanations: string[]; forecast_horizons: number[]
 }
 type LayerKey = 'radar' | 'satellite' | 'lightning' | 'tracks' | 'risk'
-const API = '/api'
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '')
 const BOUNDS = { west: 80.9, east: 82.2, south: 20.85, north: 21.615 }
 const fmtTime = (value: string) => new Intl.DateTimeFormat('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' }).format(new Date(value))
 const riskClass = (v: string) => v.toLowerCase()
@@ -21,7 +21,7 @@ const polygon = (points: number[][]) => points.map(([lat, lon]) => `${x(lon)},${
 const radarColor = (dbz: number) => dbz >= 55 ? '#ec434c' : dbz >= 45 ? '#f18a37' : dbz >= 35 ? '#e9c34a' : dbz >= 25 ? '#75bd76' : dbz >= 15 ? '#42a9a5' : '#306986'
 
 async function getState(path = '/state', init?: RequestInit): Promise<State> {
-  const res = await fetch(API + path, init)
+  const res = await fetch(`${API_BASE_URL}/api${path}`, init)
   if (!res.ok) throw new Error(`Weather service returned ${res.status}`)
   return res.json()
 }
@@ -102,7 +102,7 @@ export default function App() {
   const displayTime = data ? fmtTime(data.scenario.time) : '--:--'
   return <div className="app-shell">
     <header className="topbar"><div className="brand"><div className="brand-mark"><CloudLightning size={24}/></div><div><strong>MeghDrishti</strong><span>THUNDERSTORM & LIGHTNING NOWCASTING</span></div></div><div className="top-status"><span className="live-dot"/> SCENARIO ACTIVE <span className="top-divider"/> RAIPUR · CHHATTISGARH <span className="top-divider"/><strong>{displayTime} IST</strong></div></header>
-    {error && <div className="error-banner"><AlertTriangle size={18}/>{error}. Start the backend on port 8000, then <button onClick={()=>void load()}>Retry</button>.</div>}
+    {error && <div className="error-banner"><AlertTriangle size={18}/>{import.meta.env.DEV ? `${error}. Start the backend on port 8000, then ` : 'Weather service is unavailable or failed to respond. '}<button onClick={()=>void load()}>Retry</button>.</div>}
     {!data ? <div className="loading">Connecting to MeghDrishti weather service…</div> : <>
       <div className="headline"><div><div className="eyebrow">SIH26072 / OPERATIONAL DEMONSTRATION</div><h1>Thunderstorm command overview</h1><p>Multi-source observations → local impact and lightning warnings</p></div><div className="headline-right"><div><span>OBSERVATION TIME</span><strong>{displayTime} IST</strong></div><div><span>SCENARIO ELAPSED</span><strong>T + {String(data.scenario.elapsed_minutes).padStart(3,'0')} MIN</strong></div></div></div>
       <main className="dashboard">

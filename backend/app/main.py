@@ -1,5 +1,7 @@
 """MeghDrishti local demo API."""
+import os
 from threading import Lock
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,8 +9,21 @@ from pydantic import BaseModel, Field
 
 from .scenario import MAX_FRAME, build_state
 
+def cors_origins(raw: str | None) -> list[str]:
+    """Add configured frontend origins to the local development defaults."""
+    origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    for value in (raw or "").split(","):
+        parsed = urlsplit(value.strip())
+        if parsed.scheme not in ("http", "https") or not parsed.netloc or parsed.path not in ("", "/") or parsed.query or parsed.fragment:
+            continue
+        origin = f"{parsed.scheme}://{parsed.netloc}"
+        if origin not in origins:
+            origins.append(origin)
+    return origins
+
+
 app = FastAPI(title="MeghDrishti Nowcast API", version="1.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+app.add_middleware(CORSMiddleware, allow_origins=cors_origins(os.getenv("CORS_ORIGINS")),
                    allow_credentials=False, allow_methods=["GET", "POST"], allow_headers=["*"])
 _lock = Lock()
 _frame = 0

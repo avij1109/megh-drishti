@@ -2,7 +2,7 @@ import asyncio
 
 import httpx
 
-from app.main import app
+from app.main import app, cors_origins
 from app.scenario import MAX_FRAME, build_state, detect_cells
 
 
@@ -60,3 +60,12 @@ def test_api_seek_and_bounds():
             assert (await client.post("/api/scenario/seek", json={"frame": MAX_FRAME + 1})).status_code == 422
             await client.post("/api/scenario/reset")
     asyncio.run(flow())
+
+
+def test_cors_origins_keep_local_defaults_and_accept_configured_frontend():
+    origins = cors_origins(" https://frontend.example.vercel.app/ , , *, https://frontend.example.vercel.app, https://example.com/path ")
+    assert origins == [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://frontend.example.vercel.app",
+    ]

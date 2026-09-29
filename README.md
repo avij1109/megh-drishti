@@ -51,7 +51,9 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`. The Vite server proxies `/api` and `/health` to port 8000. The API documentation is at `http://127.0.0.1:8000/docs`. A development server can be stopped with Ctrl+C. For a production asset check, run `npm run build` in `frontend`.
+Open `http://localhost:5173`. By default, the frontend calls `http://localhost:8000/api` directly; the backend permits both `localhost:5173` and `127.0.0.1:5173` through CORS. The API documentation is at `http://127.0.0.1:8000/docs`. A development server can be stopped with Ctrl+C. For a production asset check, run `npm run build` in `frontend`.
+
+For deployment, set `VITE_API_BASE_URL=https://megh-drishti-production.up.railway.app` in Vercel's production environment before building or redeploying the frontend. Vite embeds this value during the build; it must be the backend origin without `/api`. Set `CORS_ORIGINS` on Railway to the exact production Vercel origin (for example, `https://your-project.vercel.app`, with no trailing path). Multiple frontend origins can be comma-separated. Redeploy Railway after changing its environment, then redeploy Vercel so its bundle contains the API URL. Test Railway `/health` and `/api/state`, then open the Vercel frontend and verify that requests target Railway.
 
 ## Presenter flow (2–3 minutes)
 
