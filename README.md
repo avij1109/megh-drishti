@@ -87,3 +87,4 @@ npm run build
 - Motion extrapolation and measured intensity trend produce short-range forecasts. Locality ETA comes from the closest point on the projected path; alerts require both arrival and lightning-risk thresholds. This is not a CAP XML feed or operational dissemination service.
 - To advance beyond the demo, replace the adapters with licensed data readers, calibrate scores on held-out events, add uncertainty and radar quality control, validate warnings with meteorologists, and connect approved dissemination systems.
 # megh-drishti
+# megh-drishti
